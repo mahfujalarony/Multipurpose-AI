@@ -373,7 +373,7 @@ export default function MultipurposeAILanding() {
                   onClick={() => setShowDemoModal(true)}
                   className="flex items-center gap-2 text-base font-medium px-7 py-4 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 hover:border-indigo-400 transition-all hover:-translate-y-0.5"
                 >
-                  <span aria-hidden="true">▶</span> Watch 2-min demo
+                  <span aria-hidden="true">▶</span> Watch 30-second demo
                 </button>
               </div>
 
@@ -681,7 +681,7 @@ export default function MultipurposeAILanding() {
           >
             {/* Header bar */}
             <div className="flex items-center justify-between px-4 py-2.5 bg-zinc-900">
-              <span className="text-white text-xs font-semibold tracking-wide">▶ MultipurposeAI — 2-min Demo</span>
+              <span className="text-white text-xs font-semibold tracking-wide">▶ MultipurposeAI — 30-second Demo</span>
               <button
                 onClick={() => setShowDemoModal(false)}
                 aria-label="Close demo"
@@ -694,7 +694,7 @@ export default function MultipurposeAILanding() {
             <div className="relative w-full" style={{ paddingTop: "56.25%" }}>
               <iframe
                 className="absolute inset-0 w-full h-full"
-                src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1&rel=0&modestbranding=1"
+                src="https://www.youtube.com/embed/BEEEIKs6ClY?autoplay=1&loop=1&playlist=BEEEIKs6ClY&rel=0&modestbranding=1"
                 title="MultipurposeAI 2-minute product demo"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowFullScreen
