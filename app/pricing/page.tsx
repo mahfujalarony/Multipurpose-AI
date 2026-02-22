@@ -137,7 +137,6 @@ export default function PricingPage() {
   const text = dark ? "text-zinc-50" : "text-zinc-900";
   const muted = dark ? "text-zinc-400" : "text-zinc-500";
   const cardBg = dark ? "bg-zinc-900 border-zinc-800" : "bg-white border-zinc-100";
-  const sectionBg = dark ? "bg-zinc-900 border-zinc-800" : "bg-zinc-50 border-zinc-100";
 
   return (
     <>
@@ -145,6 +144,7 @@ export default function PricingPage() {
         <title>Pricing — MultipurposeAI</title>
         <meta name="description" content="Simple, transparent pricing for individuals, teams, and enterprises. Start free, upgrade when ready." />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
+        {/* eslint-disable-next-line @next/next/no-page-custom-font */}
         <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@500&display=swap" rel="stylesheet" />
       </Head>
 
@@ -262,7 +262,7 @@ export default function PricingPage() {
               </span>
             </h1>
             <p className={`text-lg ${muted} max-w-xl mx-auto mb-10 leading-relaxed`}>
-              Start free. Upgrade when you're ready. Cancel anytime — no questions asked.
+              Start free. Upgrade when you&apos;re ready. Cancel anytime — no questions asked.
             </p>
 
             {/* Toggle */}
@@ -410,7 +410,7 @@ export default function PricingPage() {
           <div className="text-center mb-12">
             <p className="text-indigo-600 text-xs font-bold uppercase tracking-widest mb-3">Compare</p>
             <h2 className="font-display text-4xl sm:text-5xl font-extrabold tracking-tighter">
-              What's in each plan
+              What&apos;s in each plan
             </h2>
           </div>
 

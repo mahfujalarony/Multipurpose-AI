@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import Head from "next/head";
 import LoginButton from "../LoginButton";
 import Link from "next/link";
@@ -138,8 +138,6 @@ function TypewriterText({ text, speed = 14 }: { text: string; speed?: number }) 
   const [started, setStarted] = useState(false);
 
   useEffect(() => {
-    setDisplayed("");
-    setStarted(false);
     const t = setTimeout(() => setStarted(true), 150);
     return () => clearTimeout(t);
   }, [text]);
@@ -185,10 +183,11 @@ export default function LandingPageClient() {
     setTimeout(() => { setIsGenerating(false); setShowOutput(true); }, 1800);
   };
 
-  useEffect(() => {
+  const selectFeature = (index: number) => {
     setShowOutput(false);
     setIsGenerating(false);
-  }, [activeFeature]);
+    setActiveFeature(index);
+  };
 
   const feat = features[activeFeature];
 
@@ -235,6 +234,7 @@ export default function LandingPageClient() {
         {/* Fonts */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        {/* eslint-disable-next-line @next/next/no-page-custom-font */}
         <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
 
         {/* JSON-LD */}
@@ -365,10 +365,10 @@ export default function LandingPageClient() {
 
               {/* CTAs */}
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
-                <button className="shimmer-btn text-white font-bold text-base px-8 py-4 rounded-xl flex items-center gap-2 shadow-xl shadow-indigo-500/20 hover:-translate-y-1 transition-transform">
+                <Link href="/dashboard" className="shimmer-btn text-white font-bold text-base px-8 py-4 rounded-xl flex items-center gap-2 shadow-xl shadow-indigo-500/20 hover:-translate-y-1 transition-transform">
                   Start for free — no CC required
                   <span aria-hidden="true">→</span>
-                </button>
+                </Link>
                 <button
                   onClick={() => setShowDemoModal(true)}
                   className="flex items-center gap-2 text-base font-medium px-7 py-4 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 hover:border-indigo-400 transition-all hover:-translate-y-0.5"
@@ -416,7 +416,7 @@ export default function LandingPageClient() {
                   role="tab"
                   aria-selected={activeFeature === i}
                   aria-controls={`panel-${f.id}`}
-                  onClick={() => setActiveFeature(i)}
+                  onClick={() => selectFeature(i)}
                   className={`flex items-center gap-2 px-5 py-2.5 rounded-full border-2 text-sm font-semibold transition-all duration-200 hover:-translate-y-0.5 ${
                     activeFeature === i ? f.tabActive : f.tabIdle
                   }`}
@@ -494,7 +494,7 @@ export default function LandingPageClient() {
                   {!showOutput && !isGenerating && (
                     <div className="h-52 flex flex-col items-center justify-center gap-3 border-2 border-dashed border-zinc-200 dark:border-zinc-700 rounded-xl text-zinc-400">
                       <span className="text-4xl" aria-hidden="true">{feat.emoji}</span>
-                      <span className="text-sm">Hit "Generate Now" to see the magic</span>
+                      <span className="text-sm">Hit &quot;Generate Now&quot; to see the magic</span>
                     </div>
                   )}
 
@@ -510,7 +510,7 @@ export default function LandingPageClient() {
                   {/* Image output */}
                   {showOutput && feat.id === "image" && (
                     <div className="rounded-xl overflow-hidden bg-gradient-to-br from-zinc-900 via-indigo-950 to-violet-950 p-5">
-                      <div className="font-mono-custom text-xs text-zinc-500 mb-4">// 4 variants generated</div>
+                      <div className="font-mono-custom text-xs text-zinc-500 mb-4">{"// 4 variants generated"}</div>
                       <div className="grid grid-cols-2 gap-3">
                         {["bg-indigo-500/50", "bg-violet-500/40", "bg-cyan-500/40", "bg-indigo-400/30"].map((c, i) => (
                           <div key={i} className={`h-20 rounded-lg ${c} animate-float`} style={{ animationDelay: `${i * 0.3}s` }} />
@@ -523,7 +523,7 @@ export default function LandingPageClient() {
                   {/* Text output */}
                   {showOutput && feat.id !== "image" && (
                     <div className={`font-mono-custom text-sm leading-relaxed bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl p-5 text-zinc-700 dark:text-zinc-300 whitespace-pre-wrap min-h-[200px] fade-up`}>
-                      <TypewriterText text={feat.demo.output} />
+                      <TypewriterText key={feat.id} text={feat.demo.output} />
                     </div>
                   )}
 
@@ -562,7 +562,7 @@ export default function LandingPageClient() {
                 <article
                   key={f.id}
                   className="card-lift rounded-2xl border border-zinc-100 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-8 cursor-pointer shadow-sm"
-                  onClick={() => { setActiveFeature(i); document.getElementById("features")?.scrollIntoView({ behavior: "smooth" }); }}
+                  onClick={() => { selectFeature(i); document.getElementById("features")?.scrollIntoView({ behavior: "smooth" }); }}
                 >
                   <div className={`w-14 h-14 rounded-2xl ${f.iconBg} flex items-center justify-center text-3xl mb-5`} aria-hidden="true">
                     {f.emoji}
@@ -627,7 +627,7 @@ export default function LandingPageClient() {
                 >
                   <div className="text-amber-400 text-xl mb-4" aria-label="5 stars">★★★★★</div>
                   <blockquote>
-                    <p className="text-sm leading-relaxed text-zinc-700 dark:text-zinc-300 mb-5">"{t.text}"</p>
+                    <p className="text-sm leading-relaxed text-zinc-700 dark:text-zinc-300 mb-5">&ldquo;{t.text}&rdquo;</p>
                   </blockquote>
                   <figcaption className="flex items-center gap-3">
                     <div
@@ -661,9 +661,9 @@ export default function LandingPageClient() {
               Join 5,200+ creators and teams using MultipurposeAI daily. Free forever, no credit card needed.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 relative">
-              <button className="bg-white text-indigo-700 font-bold text-base px-10 py-4 rounded-xl shadow-xl hover:-translate-y-1 transition-transform">
+              <Link href="/dashboard"className="bg-white text-indigo-700 font-bold text-base px-10 py-4 rounded-xl shadow-xl hover:-translate-y-1 transition-transform">
                 Get started for free →
-              </button>
+              </Link>
               <Link href="/pricing" className="bg-white/15 text-white font-medium text-base px-8 py-4 rounded-xl border border-white/30 backdrop-blur-sm hover:bg-white/25 transition-colors">
                 View pricing
               </Link>
