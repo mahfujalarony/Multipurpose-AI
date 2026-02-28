@@ -497,7 +497,7 @@ export default function ChatPage() {
     <main className="h-svh bg-gradient-to-b from-slate-100 to-slate-200 text-slate-900">
           <SiteNavbar actionLabel="নতুন চ্যাট" onActionClick={startNewChat} onMenuClick={() => setSidebarOpen(true)} />
 
-      <div className="flex h-[calc(100svh-4rem)]">
+      <div className="flex h-[calc(100svh-3.5rem)] sm:h-[calc(100svh-4rem)]">
         <div
           className={["fixed inset-0 z-30 bg-black/35 md:hidden", sidebarOpen ? "block" : "hidden"].join(" ")}
           onClick={() => setSidebarOpen(false)}
@@ -505,7 +505,7 @@ export default function ChatPage() {
 
         <aside
           className={[
-            "chat-scroll fixed left-0 top-16 z-40 h-[calc(100svh-4rem)] overflow-y-auto overscroll-contain border-r border-slate-200 bg-slate-50 p-3 transition-all md:static md:top-0 md:h-full md:translate-x-0",
+            "chat-scroll fixed left-0 top-14 z-40 h-[calc(100svh-3.5rem)] w-[84vw] max-w-[320px] overflow-y-auto overscroll-contain border-r border-slate-200 bg-slate-50 p-3 transition-all sm:top-16 sm:h-[calc(100svh-4rem)] md:static md:top-0 md:h-full md:w-auto md:max-w-none md:translate-x-0",
             sidebarCompact ? "md:w-[92px]" : "md:w-[300px]",
             sidebarOpen ? "translate-x-0" : "-translate-x-full",
           ].join(" ")}
@@ -544,7 +544,7 @@ export default function ChatPage() {
 
               <div className="mt-3 rounded-2xl border border-slate-200 bg-white p-2 shadow-sm">
                 <p className="px-2 pb-1 pt-0.5 text-xs font-semibold uppercase tracking-wide text-slate-500">চ্যাট হিস্ট্রি</p>
-                <div className="chat-scroll max-h-[280px] space-y-1.5 overflow-y-auto px-1 pb-1">
+                <div className="chat-scroll max-h-[40vh] space-y-1.5 overflow-y-auto px-1 pb-1">
                   {!isAuthenticated ? (
                     <p className="px-2 py-2 text-xs text-slate-500">হিস্ট্রি দেখতে আগে লগইন করুন।</p>
                   ) : historyLoading ? (
@@ -610,7 +610,7 @@ export default function ChatPage() {
 
         <section className="flex min-h-0 min-w-0 flex-1 flex-col">
           <div className="chat-scroll flex-1 overflow-y-auto">
-            <div className="mx-auto w-full max-w-4xl px-3 pb-36 pt-6 sm:px-6">
+            <div className="mx-auto w-full max-w-4xl px-2.5 pb-32 pt-4 sm:px-6 sm:pb-36 sm:pt-6">
               <div className="space-y-7">
                 {messages.map((m) => (
                   <article key={m.id} className="text-[15px] leading-7 sm:text-base sm:leading-8">
@@ -635,7 +635,7 @@ export default function ChatPage() {
             </div>
           </div>
 
-          <div className="border-t border-slate-200 bg-white/80 px-3 pb-4 pt-3 backdrop-blur sm:px-4">
+          <div className="border-t border-slate-200 bg-white/80 px-2.5 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-2.5 backdrop-blur sm:px-4 sm:pb-4 sm:pt-3">
             <form onSubmit={sendMessage} className="mx-auto w-full max-w-3xl">
               <div className="flex items-end gap-2 rounded-2xl border border-slate-300 bg-white p-2 shadow-sm">
                 <input
@@ -643,35 +643,21 @@ export default function ChatPage() {
                   onChange={(e) => setInput(e.target.value)}
                   placeholder={isAuthenticated ? "আপনার প্রশ্ন লিখুন..." : "চ্যাট করতে আগে লগইন করুন"}
                   disabled={!isAuthenticated}
-                  className="h-12 flex-1 rounded-xl px-3 text-[15px] outline-none placeholder:text-slate-400"
+                  className="h-11 flex-1 rounded-xl px-3 text-[15px] outline-none placeholder:text-slate-400 sm:h-12"
                 />
                 <button
                   type="submit"
                   disabled={!canSend}
-                  className="h-12 rounded-xl bg-slate-900 px-4 text-sm font-semibold text-white transition hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="h-11 rounded-xl bg-slate-900 px-3 text-sm font-semibold text-white transition hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-50 sm:h-12 sm:px-4"
                 >
                   {loadingPhase === "fetching" ? "ভাবছে..." : loadingPhase === "typing" ? "টাইপ করছে..." : "পাঠান"}
                 </button>
               </div>
 
-              {!isAuthenticated ? (
-                <div className="mt-2 text-center">
-                  <button
-                    onClick={() => signIn("google")}
-                    className="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-100"
-                  >
-                    গুগল দিয়ে লগইন করুন
-                  </button>
-                </div>
-              ) : null}
 
               {error ? (
                 <p className="mt-2 text-center text-xs font-medium text-rose-600">{error}</p>
-              ) : (
-                <p className="mt-2 text-center text-xs text-slate-500">
-                  API মোড চালু আছে। নলেজ ফাইল: <code>data/college-knowledge.json</code>
-                </p>
-              )}
+              ) : null}
             </form>
           </div>
         </section>
@@ -679,4 +665,3 @@ export default function ChatPage() {
     </main>
   )
 }
-
