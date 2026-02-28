@@ -18,6 +18,7 @@ model User {
   createdAt DateTime @default(now())
   accounts  Account[]
   sessions  Session[]
+  chatHistory ChatHistory[]
 }
 
 model Account {
@@ -55,4 +56,17 @@ model VerificationToken {
   expires    DateTime
 
   @@unique([identifier, token])
+}
+
+model ChatHistory {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String   @db.ObjectId
+  sessionId String
+  role      String
+  content   String
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, sessionId, createdAt])
 }
