@@ -505,8 +505,9 @@ export default function ChatPage() {
 
         <aside
           className={[
-            "chat-scroll fixed left-0 top-14 z-40 h-[calc(100svh-3.5rem)] w-[84vw] max-w-[320px] overflow-y-auto overscroll-contain border-r border-slate-200 bg-slate-50 p-3 transition-all sm:top-16 sm:h-[calc(100svh-4rem)] md:static md:top-0 md:h-full md:w-auto md:max-w-none md:translate-x-0",
-            sidebarCompact ? "md:w-[92px]" : "md:w-[300px]",
+            "chat-scroll fixed left-0 top-14 z-40 h-[calc(100svh-3.5rem)] w-[84vw] max-w-[320px] overflow-y-auto overscroll-contain border-r border-slate-200 bg-slate-50 p-3 transition-all sm:top-16 sm:h-[calc(100svh-4rem)]",
+            "md:static md:top-0 md:h-full md:translate-x-0 md:shrink-0",
+            sidebarCompact ? "md:w-[92px] md:max-w-[92px]" : "md:w-[300px] md:max-w-[300px]",
             sidebarOpen ? "translate-x-0" : "-translate-x-full",
           ].join(" ")}
         >
