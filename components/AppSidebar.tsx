@@ -16,12 +16,17 @@ import {
 } from "@/components/ui/sidebar"
 
 const navItems = [
+<<<<<<< HEAD
   { title: "Overview", href: "/dashboard", icon: "◆" },
   { title: "Email Studio", href: "/dashboard/email", icon: "✉" },
   { title: "Content Studio", href: "/dashboard/content", icon: "✦" },
   { title: "Vision Studio", href: "/dashboard/vision", icon: "◉" },
   { title: "Dev Toolkit", href: "/dashboard/dev", icon: "⚡" },
   { title: "Settings", href: "/dashboard/settings", icon: "⊙" },
+=======
+  { title: "Chat", href: "/dashboard/chat", emoji: "*" },
+  { title: "Settings", href: "/dashboard/settings", emoji: "o" },
+>>>>>>> a29298f5bea8d2df0c69b26d5f4ed489d55b4bf6
 ]
 
 export function AppSidebar() {
@@ -88,7 +93,7 @@ export function AppSidebar() {
             className="w-9 h-9 rounded-xl flex items-center justify-center text-white text-lg font-bold shadow-md"
             style={{ background: "linear-gradient(135deg, #6366f1, #8b5cf6)" }}
           >
-            ✦
+            *
           </div>
           <div>
             <p
@@ -110,9 +115,7 @@ export function AppSidebar() {
           <SidebarGroupContent>
             <SidebarMenu className="gap-0.5">
               {navItems.map((item) => {
-                const active =
-                  pathname === item.href ||
-                  (item.href !== "/dashboard" && pathname.startsWith(item.href))
+                const active = pathname === item.href || pathname.startsWith(item.href)
                 return (
                   <SidebarMenuItem key={item.href}>
                     <SidebarMenuButton asChild isActive={active}>
@@ -144,7 +147,20 @@ export function AppSidebar() {
           className="rounded-xl px-3 py-3 text-xs font-medium"
           style={{ background: "rgba(99,102,241,0.05)", border: "1px solid rgba(99,102,241,0.1)", color: "#6b6b8a" }}
         >
+<<<<<<< HEAD
           OpenAI connected tools
+=======
+          <div
+            className="w-8 h-8 rounded-full flex items-center justify-center text-xs text-white font-bold flex-shrink-0"
+            style={{ background: "linear-gradient(135deg, #6366f1, #8b5cf6)" }}
+          >
+            U
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-xs font-bold truncate" style={{ color: "inherit" }}>User Name</p>
+            <p className="text-[10px]" style={{ color: "#a0a0c0" }}>Pro Plan</p>
+          </div>
+>>>>>>> a29298f5bea8d2df0c69b26d5f4ed489d55b4bf6
         </div>
       </SidebarFooter>
     </Sidebar>
