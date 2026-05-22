@@ -75,7 +75,7 @@ export async function POST(request: Request) {
     );
 
     const images = responses.flatMap((response) =>
-      response.data.flatMap((image) => {
+      (response.data || []).flatMap((image) => {
         if (image.b64_json) return [`data:image/png;base64,${image.b64_json}`];
         if (image.url) return [image.url];
         return [];
