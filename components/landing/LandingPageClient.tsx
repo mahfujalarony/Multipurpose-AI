@@ -16,23 +16,6 @@ const features = [
     tabIdle: "bg-white dark:bg-zinc-900 text-zinc-700 dark:text-zinc-300 border-zinc-200 dark:border-zinc-700",
     iconBg: "bg-rose-50 dark:bg-rose-900/20",
     description: "Draft persuasive, context-aware emails for outreach, sales, or support — in seconds.",
-    demo: {
-      prompt: "Write a cold outreach email to a startup founder about our AI tool",
-      output: `Subject: Cut your team's content time by 3×
-
-Hi Sarah,
-
-I noticed Vercel just launched a new product — congrats!
-Scaling content with a small team is brutal.
-
-We built Multipurpose AI for exactly this:
-one workspace for emails, blogs, images & code.
-
-Worth a 15-min chat? I'll show you how Notion cut
-their content production time by 68%.
-
-— Alex`,
-    },
   },
   {
     id: "content",
@@ -43,18 +26,6 @@ their content production time by 68%.
     tabIdle: "bg-white dark:bg-zinc-900 text-zinc-700 dark:text-zinc-300 border-zinc-200 dark:border-zinc-700",
     iconBg: "bg-teal-50 dark:bg-teal-900/20",
     description: "Generate SEO-optimized articles, blog posts, and landing copy that ranks and converts.",
-    demo: {
-      prompt: "Write an intro for: 'Why AI is changing content marketing'",
-      output: `The content marketing playbook you've been following
-for the last decade? It's being rewritten — right now.
-
-AI isn't just speeding up content production. It's
-fundamentally changing what "good content" means,
-who creates it, and how it reaches audiences.
-
-In this post, we break down exactly what's shifting
-and what it means for your strategy in 2026.`,
-    },
   },
   {
     id: "image",
@@ -65,10 +36,6 @@ and what it means for your strategy in 2026.`,
     tabIdle: "bg-white dark:bg-zinc-900 text-zinc-700 dark:text-zinc-300 border-zinc-200 dark:border-zinc-700",
     iconBg: "bg-violet-50 dark:bg-violet-900/20",
     description: "Convert plain prompts into professional visuals for ads and social media instantly.",
-    demo: {
-      prompt: "Futuristic dashboard UI, dark mode, neon accents, editorial style",
-      output: "IMAGE_MODE",
-    },
   },
   {
     id: "code",
@@ -79,57 +46,13 @@ and what it means for your strategy in 2026.`,
     tabIdle: "bg-white dark:bg-zinc-900 text-zinc-700 dark:text-zinc-300 border-zinc-200 dark:border-zinc-700",
     iconBg: "bg-amber-50 dark:bg-amber-900/20",
     description: "Accelerate your workflow with AI-assisted code generation, review, and debugging.",
-    demo: {
-      prompt: "Create a React hook for debounced search input",
-      output: `function useDebounce(value, delay = 300) {
-  const [debounced, setDebounced] = useState(value);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebounced(value);
-    }, delay);
-
-    return () => clearTimeout(timer);
-  }, [value, delay]);
-
-  return debounced;
-}`,
-    },
-  },
-];
-
-const stats = [
-  { value: "50K+", label: "Daily Generations" },
-  { value: "5.2K+", label: "Active Creators" },
-  { value: "3×", label: "Faster Workflows" },
-  { value: "99.9%", label: "Uptime SLA" },
-];
-
-const testimonials = [
-  {
-    name: "Sarah Chen",
-    role: "Head of Growth @ Vercel",
-    text: "We replaced 4 tools with this one. Our content output tripled in week one.",
-    avatar: "SC",
-  },
-  {
-    name: "Marcus Reid",
-    role: "Founder, Launchpad",
-    text: "The email module alone paid for itself. 40% reply rate on cold outreach.",
-    avatar: "MR",
-  },
-  {
-    name: "Priya Nair",
-    role: "Marketing Lead @ Linear",
-    text: "Finally, an AI tool that doesn't feel like a toy. This is production-ready.",
-    avatar: "PN",
   },
 ];
 
 const steps = [
-  { num: "01", icon: "✍️", title: "Describe your need", desc: "Type a prompt, fill a brief form, or choose from 50+ templates." },
-  { num: "02", icon: "⚡", title: "AI generates instantly", desc: "Our models produce high-quality results in under 5 seconds." },
-  { num: "03", icon: "🚀", title: "Export & publish", desc: "Copy, download, or push directly to your favourite tools." },
+  { num: "01", icon: "✍️", title: "Describe your need", desc: "Type a prompt or fill in the tool form." },
+  { num: "02", icon: "⚡", title: "Generate with OpenAI", desc: "The workspace sends your request to the connected API route." },
+  { num: "03", icon: "🚀", title: "Use the result", desc: "Copy text outputs or save generated images." },
 ];
 
 /* ─────────────────────── TYPEWRITER ─────────────────────── */
@@ -160,12 +83,8 @@ function TypewriterText({ text, speed = 14 }: { text: string; speed?: number }) 
 
 /* ─────────────────────── MAIN PAGE ─────────────────────── */
 export default function LandingPageClient() {
-  const [activeFeature, setActiveFeature] = useState(0);
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [showOutput, setShowOutput] = useState(false);
   const [dark, setDark] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const [showDemoModal, setShowDemoModal] = useState(false);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
@@ -174,22 +93,26 @@ export default function LandingPageClient() {
   }, []);
 
   useEffect(() => {
+    const items = document.querySelectorAll<HTMLElement>("[data-reveal]");
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("is-visible");
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.16, rootMargin: "0px 0px -80px 0px" },
+    );
+
+    items.forEach((item) => observer.observe(item));
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
     document.documentElement.classList.toggle("dark", dark);
   }, [dark]);
-
-  const handleGenerate = () => {
-    setIsGenerating(true);
-    setShowOutput(false);
-    setTimeout(() => { setIsGenerating(false); setShowOutput(true); }, 1800);
-  };
-
-  const selectFeature = (index: number) => {
-    setShowOutput(false);
-    setIsGenerating(false);
-    setActiveFeature(index);
-  };
-
-  const feat = features[activeFeature];
 
   /* ── JSON-LD structured data for SEO ── */
   const jsonLd = {
@@ -228,7 +151,7 @@ export default function LandingPageClient() {
         {/* Twitter Card */}
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content="MultipurposeAI — One AI Workspace" />
-        <meta name="twitter:description" content="50K+ daily generations. Write, create, and ship faster with AI." />
+        <meta name="twitter:description" content="Write, create, and ship faster with AI." />
         <meta name="twitter:image" content="https://multipurposeai.app/og-image.png" />
 
         {/* Fonts */}
@@ -256,8 +179,23 @@ export default function LandingPageClient() {
           @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
           @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
           @keyframes fade-up { from{opacity:0;transform:translateY(24px)} to{opacity:1;transform:translateY(0)} }
+          @keyframes hero-scale { from{opacity:0;transform:translateY(28px) scale(.96)} to{opacity:1;transform:translateY(0) scale(1)} }
           .animate-float { animation: float 4s ease-in-out infinite; }
-          .fade-up { animation: fade-up 0.6s ease forwards; }
+          .fade-up { animation: hero-scale 0.8s cubic-bezier(.22,1,.36,1) forwards; }
+          [data-reveal] {
+            opacity: 0;
+            transform: translateY(34px) scale(.98);
+            transition: opacity .7s cubic-bezier(.22,1,.36,1), transform .7s cubic-bezier(.22,1,.36,1);
+            transition-delay: var(--reveal-delay, 0ms);
+          }
+          [data-reveal].is-visible {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+          }
+          @media (prefers-reduced-motion: reduce) {
+            .animate-float, .fade-up, .shimmer-btn, .spin { animation: none !important; }
+            [data-reveal] { opacity: 1; transform: none; transition: none; }
+          }
           .grid-dots {
             background-image: radial-gradient(circle, rgba(99,102,241,0.15) 1px, transparent 1px);
             background-size: 32px 32px;
@@ -343,7 +281,7 @@ export default function LandingPageClient() {
               {/* Badge */}
               <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-indigo-200 dark:border-indigo-500/30 bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 text-xs font-bold uppercase tracking-widest mb-8">
                 <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse" />
-                Now in Public Beta · Trusted by 5,200+ teams
+                Now in Public Beta
               </div>
 
               {/* H1 — SEO critical */}
@@ -366,182 +304,11 @@ export default function LandingPageClient() {
               {/* CTAs */}
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
                 <Link href="/dashboard" className="shimmer-btn text-white font-bold text-base px-8 py-4 rounded-xl flex items-center gap-2 shadow-xl shadow-indigo-500/20 hover:-translate-y-1 transition-transform">
-                  Start for free — no CC required
+                  Open dashboard
                   <span aria-hidden="true">→</span>
                 </Link>
-                <button
-                  onClick={() => setShowDemoModal(true)}
-                  className="flex items-center gap-2 text-base font-medium px-7 py-4 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 hover:border-indigo-400 transition-all hover:-translate-y-0.5"
-                >
-                  <span aria-hidden="true">▶</span> Watch 30-second demo
-                </button>
               </div>
 
-              {/* Stats */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                {stats.map((s) => (
-                  <div
-                    key={s.label}
-                    className="rounded-2xl border border-zinc-100 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-6 py-5 text-center shadow-sm"
-                  >
-                    <div className="font-display text-3xl font-extrabold text-indigo-600">{s.value}</div>
-                    <div className="text-xs font-medium text-zinc-500 dark:text-zinc-400 mt-1">{s.label}</div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </section>
-
-          {/* ═══════════════════ LIVE DEMO ═══════════════════ */}
-          <section
-            id="features"
-            aria-labelledby="demo-heading"
-            className="max-w-6xl mx-auto px-6 py-24"
-          >
-            <div className="text-center mb-12">
-              <p className="text-indigo-600 text-xs font-bold uppercase tracking-widest mb-3">Live Demo</p>
-              <h2 id="demo-heading" className="font-display text-4xl sm:text-5xl font-extrabold tracking-tighter mb-4">
-                Try it yourself — right now
-              </h2>
-              <p className="text-zinc-500 dark:text-zinc-400 text-lg max-w-lg mx-auto">
-                Pick a tool, hit Generate, and see real AI output instantly.
-              </p>
-            </div>
-
-            {/* Feature Tabs */}
-            <div className="flex flex-wrap gap-2.5 justify-center mb-8" role="tablist" aria-label="AI tools">
-              {features.map((f, i) => (
-                <button
-                  key={f.id}
-                  role="tab"
-                  aria-selected={activeFeature === i}
-                  aria-controls={`panel-${f.id}`}
-                  onClick={() => selectFeature(i)}
-                  className={`flex items-center gap-2 px-5 py-2.5 rounded-full border-2 text-sm font-semibold transition-all duration-200 hover:-translate-y-0.5 ${
-                    activeFeature === i ? f.tabActive : f.tabIdle
-                  }`}
-                >
-                  <span aria-hidden="true">{f.emoji}</span> {f.label}
-                </button>
-              ))}
-            </div>
-
-            {/* Demo Panel */}
-            <div
-              id={`panel-${feat.id}`}
-              role="tabpanel"
-              className="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 overflow-hidden shadow-xl"
-            >
-              {/* Terminal bar */}
-              <div className="flex items-center gap-2 px-5 py-3 bg-zinc-50 dark:bg-zinc-800 border-b border-zinc-200 dark:border-zinc-700">
-                <span className="w-3 h-3 rounded-full bg-red-400" aria-hidden="true" />
-                <span className="w-3 h-3 rounded-full bg-yellow-400" aria-hidden="true" />
-                <span className="w-3 h-3 rounded-full bg-green-400" aria-hidden="true" />
-                <span className="font-mono-custom text-xs text-zinc-400 ml-3">
-                  multipurpose-ai · {feat.label}
-                </span>
-              </div>
-
-              <div className="grid md:grid-cols-2">
-                {/* Input */}
-                <div className="p-8 border-b md:border-b-0 md:border-r border-zinc-200 dark:border-zinc-800">
-                  <p className="text-xs font-bold uppercase tracking-widest text-zinc-400 mb-3">Prompt</p>
-                  <div className="font-mono-custom text-sm bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl p-4 text-zinc-700 dark:text-zinc-300 leading-relaxed mb-5 min-h-[72px]">
-                    {feat.demo.prompt}
-                  </div>
-
-                  <p className="text-xs font-bold uppercase tracking-widest text-zinc-400 mb-3">Settings</p>
-                  <div className="space-y-3 mb-6">
-                    {[
-                      { label: "Tone", options: ["Professional", "Casual", "Formal"] },
-                      { label: "Length", options: ["Medium", "Short", "Long"] },
-                      { label: "Language", options: ["English", "Bengali", "Spanish"] },
-                    ].map((opt) => (
-                      <div key={opt.label} className="flex items-center justify-between">
-                        <span className="text-sm text-zinc-500 dark:text-zinc-400">{opt.label}</span>
-                        <select
-                          aria-label={opt.label}
-                          className="text-sm bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg px-3 py-1.5 text-zinc-700 dark:text-zinc-300 cursor-pointer"
-                        >
-                          {opt.options.map((o) => <option key={o}>{o}</option>)}
-                        </select>
-                      </div>
-                    ))}
-                  </div>
-
-                  <button
-                    onClick={handleGenerate}
-                    disabled={isGenerating}
-                    aria-busy={isGenerating}
-                    className="shimmer-btn w-full py-3.5 rounded-xl text-white font-bold text-base flex items-center justify-center gap-2.5 disabled:opacity-80 hover:-translate-y-0.5 transition-transform"
-                  >
-                    {isGenerating ? (
-                      <>
-                        <span className="spin w-4 h-4 rounded-full border-2 border-white/30 border-t-white inline-block" aria-hidden="true" />
-                        Generating…
-                      </>
-                    ) : (
-                      <>✦ Generate Now</>
-                    )}
-                  </button>
-                </div>
-
-                {/* Output */}
-                <div className="p-8">
-                  <p className="text-xs font-bold uppercase tracking-widest text-zinc-400 mb-3">Output</p>
-
-                  {/* Empty state */}
-                  {!showOutput && !isGenerating && (
-                    <div className="h-52 flex flex-col items-center justify-center gap-3 border-2 border-dashed border-zinc-200 dark:border-zinc-700 rounded-xl text-zinc-400">
-                      <span className="text-4xl" aria-hidden="true">{feat.emoji}</span>
-                      <span className="text-sm">Hit &quot;Generate Now&quot; to see the magic</span>
-                    </div>
-                  )}
-
-                  {/* Skeleton */}
-                  {isGenerating && (
-                    <div className="space-y-3 bg-zinc-50 dark:bg-zinc-800 rounded-xl p-5" aria-label="Generating output…">
-                      {[90, 70, 80, 55, 75, 60].map((w, i) => (
-                        <div key={i} className="skeleton-bar h-3" style={{ width: `${w}%`, animationDelay: `${i * 0.1}s` }} />
-                      ))}
-                    </div>
-                  )}
-
-                  {/* Image output */}
-                  {showOutput && feat.id === "image" && (
-                    <div className="rounded-xl overflow-hidden bg-gradient-to-br from-zinc-900 via-indigo-950 to-violet-950 p-5">
-                      <div className="font-mono-custom text-xs text-zinc-500 mb-4">{"// 4 variants generated"}</div>
-                      <div className="grid grid-cols-2 gap-3">
-                        {["bg-indigo-500/50", "bg-violet-500/40", "bg-cyan-500/40", "bg-indigo-400/30"].map((c, i) => (
-                          <div key={i} className={`h-20 rounded-lg ${c} animate-float`} style={{ animationDelay: `${i * 0.3}s` }} />
-                        ))}
-                      </div>
-                      <div className="font-mono-custom text-xs text-violet-400 mt-4">✓ Ready to download</div>
-                    </div>
-                  )}
-
-                  {/* Text output */}
-                  {showOutput && feat.id !== "image" && (
-                    <div className={`font-mono-custom text-sm leading-relaxed bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl p-5 text-zinc-700 dark:text-zinc-300 whitespace-pre-wrap min-h-[200px] fade-up`}>
-                      <TypewriterText key={feat.id} text={feat.demo.output} />
-                    </div>
-                  )}
-
-                  {/* Action buttons */}
-                  {showOutput && (
-                    <div className="flex gap-2 mt-4 fade-up">
-                      {["📋 Copy", "💾 Save", "🔄 Regenerate"].map((action) => (
-                        <button
-                          key={action}
-                          className="text-xs font-medium px-3.5 py-2 rounded-lg border border-zinc-200 dark:border-zinc-700 text-zinc-500 dark:text-zinc-400 hover:border-indigo-400 hover:text-indigo-600 transition-all"
-                        >
-                          {action}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </div>
             </div>
           </section>
 
@@ -550,7 +317,7 @@ export default function LandingPageClient() {
             aria-labelledby="capabilities-heading"
             className="max-w-7xl mx-auto px-6 py-16"
           >
-            <div className="text-center mb-12">
+            <div data-reveal className="text-center mb-12">
               <p className="text-indigo-600 text-xs font-bold uppercase tracking-widest mb-3">Capabilities</p>
               <h2 id="capabilities-heading" className="font-display text-4xl sm:text-5xl font-extrabold tracking-tighter">
                 Built for creators & teams
@@ -558,11 +325,13 @@ export default function LandingPageClient() {
             </div>
 
             <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
-              {features.map((f, i) => (
-                <article
+              {features.map((f, index) => (
+                <Link
                   key={f.id}
-                  className="card-lift rounded-2xl border border-zinc-100 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-8 cursor-pointer shadow-sm"
-                  onClick={() => { selectFeature(i); document.getElementById("features")?.scrollIntoView({ behavior: "smooth" }); }}
+                  href={`/dashboard/${f.id === "image" ? "vision" : f.id}`}
+                  data-reveal
+                  style={{ "--reveal-delay": `${index * 90}ms` } as React.CSSProperties}
+                  className="card-lift rounded-2xl border border-zinc-100 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-8 shadow-sm"
                 >
                   <div className={`w-14 h-14 rounded-2xl ${f.iconBg} flex items-center justify-center text-3xl mb-5`} aria-hidden="true">
                     {f.emoji}
@@ -572,7 +341,7 @@ export default function LandingPageClient() {
                   <span className="text-sm font-semibold text-indigo-600 flex items-center gap-1">
                     Try it now <span aria-hidden="true">→</span>
                   </span>
-                </article>
+                </Link>
               ))}
             </div>
           </section>
@@ -585,13 +354,18 @@ export default function LandingPageClient() {
           >
             <div className="max-w-4xl mx-auto text-center">
               <p className="text-indigo-600 text-xs font-bold uppercase tracking-widest mb-3">Process</p>
-              <h2 id="how-heading" className="font-display text-4xl sm:text-5xl font-extrabold tracking-tighter mb-14">
+              <h2 data-reveal id="how-heading" className="font-display text-4xl sm:text-5xl font-extrabold tracking-tighter mb-14">
                 From idea to output in 3 steps
               </h2>
 
               <div className="grid sm:grid-cols-3 gap-6">
-                {steps.map((step) => (
-                  <div key={step.num} className="relative bg-white dark:bg-zinc-800 rounded-2xl border border-zinc-100 dark:border-zinc-700 p-8 text-left shadow-sm">
+                {steps.map((step, index) => (
+                  <div
+                    key={step.num}
+                    data-reveal
+                    style={{ "--reveal-delay": `${index * 100}ms` } as React.CSSProperties}
+                    className="relative bg-white dark:bg-zinc-800 rounded-2xl border border-zinc-100 dark:border-zinc-700 p-8 text-left shadow-sm"
+                  >
                     <span
                       className="absolute top-4 right-5 font-display text-5xl font-black text-zinc-100 dark:text-zinc-700 select-none"
                       aria-hidden="true"
@@ -607,49 +381,11 @@ export default function LandingPageClient() {
             </div>
           </section>
 
-          {/* ═══════════════════ TESTIMONIALS ═══════════════════ */}
-          <section
-            aria-labelledby="testimonials-heading"
-            className="max-w-7xl mx-auto px-6 py-24"
-          >
-            <div className="text-center mb-12">
-              <p className="text-indigo-600 text-xs font-bold uppercase tracking-widest mb-3">Social Proof</p>
-              <h2 id="testimonials-heading" className="font-display text-4xl sm:text-5xl font-extrabold tracking-tighter">
-                Loved by 5,200+ teams
-              </h2>
-            </div>
-
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {testimonials.map((t) => (
-                <figure
-                  key={t.name}
-                  className="card-lift rounded-2xl border border-zinc-100 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-7 shadow-sm"
-                >
-                  <div className="text-amber-400 text-xl mb-4" aria-label="5 stars">★★★★★</div>
-                  <blockquote>
-                    <p className="text-sm leading-relaxed text-zinc-700 dark:text-zinc-300 mb-5">&ldquo;{t.text}&rdquo;</p>
-                  </blockquote>
-                  <figcaption className="flex items-center gap-3">
-                    <div
-                      className="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-600 to-violet-600 flex items-center justify-center text-white text-sm font-bold"
-                      aria-hidden="true"
-                    >
-                      {t.avatar}
-                    </div>
-                    <div>
-                      <div className="font-semibold text-sm">{t.name}</div>
-                      <div className="text-xs text-zinc-500 dark:text-zinc-400">{t.role}</div>
-                    </div>
-                  </figcaption>
-                </figure>
-              ))}
-            </div>
-          </section>
-
           {/* ═══════════════════ CTA ═══════════════════ */}
           <section
             id="pricing"
             aria-labelledby="cta-heading"
+            data-reveal
             className="mx-6 mb-20 rounded-3xl bg-gradient-to-br from-indigo-600 via-violet-600 to-cyan-600 p-16 sm:p-24 text-center relative overflow-hidden"
           >
             <div className="absolute inset-0 opacity-10" style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23fff' fill-opacity='1' fill-rule='evenodd'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/svg%3E\")" }} aria-hidden="true" />
@@ -658,7 +394,7 @@ export default function LandingPageClient() {
               Ready to 10× your output?
             </h2>
             <p className="text-white/75 text-lg mb-10 max-w-lg mx-auto relative">
-              Join 5,200+ creators and teams using MultipurposeAI daily. Free forever, no credit card needed.
+              Start using the real OpenAI-powered workspace.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 relative">
               <Link href="/dashboard"className="bg-white text-indigo-700 font-bold text-base px-10 py-4 rounded-xl shadow-xl hover:-translate-y-1 transition-transform">
@@ -670,40 +406,6 @@ export default function LandingPageClient() {
             </div>
           </section>
         </main>
-
-        {/* ═══════════ DEMO MODAL — floating pip style ═══════════ */}
-        {showDemoModal && (
-          <div
-            className="fixed bottom-6 right-6 z-[999] w-80 sm:w-[420px] rounded-2xl overflow-hidden shadow-2xl border border-white/20"
-            role="dialog"
-            aria-modal="true"
-            aria-label="Product demo video"
-            style={{ boxShadow: "0 32px 80px rgba(0,0,0,0.35)" }}
-          >
-            {/* Header bar */}
-            <div className="flex items-center justify-between px-4 py-2.5 bg-zinc-900">
-              <span className="text-white text-xs font-semibold tracking-wide">▶ MultipurposeAI — 30-second Demo</span>
-              <button
-                onClick={() => setShowDemoModal(false)}
-                aria-label="Close demo"
-                className="w-7 h-7 rounded-full bg-white/10 hover:bg-white/25 text-white flex items-center justify-center text-sm transition-colors"
-              >
-                ✕
-              </button>
-            </div>
-            {/* YouTube embed 16:9 */}
-            <div className="relative w-full" style={{ paddingTop: "56.25%" }}>
-              <iframe
-                className="absolute inset-0 w-full h-full"
-                src="https://www.youtube.com/embed/BEEEIKs6ClY?autoplay=1&loop=1&playlist=BEEEIKs6ClY&rel=0&modestbranding=1"
-                title="MultipurposeAI 2-minute product demo"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-              />
-            </div>
-          </div>
-        )}
-
 
         {/* ═══════════════════ FOOTER ═══════════════════ */}
         <footer

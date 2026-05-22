@@ -22,33 +22,126 @@ const TONES = [
   { id: "inspirational", label: "Inspirational", emoji: "✨" },
 ]
 
+function stripOuterMarkdownFence(output: string) {
+  return output.trim().replace(/^```(?:markdown|md)?\s*\n([\s\S]*?)\n```$/i, "$1").trim()
+}
+
+function renderInlineMarkdown(text: string) {
+  const parts = text.split("**")
+
+  if (parts.length === 1) return text
+
+  return parts.map((part, index) => {
+    if (!part) return null
+
+    if (index % 2 === 1) {
+      return <strong key={index}>{part}</strong>
+    }
+
+    return part
+  })
+}
+
+function MarkdownOutput({ content }: { content: string }) {
+  const lines = content.split("\n")
+  const elements = []
+
+  for (let index = 0; index < lines.length; index += 1) {
+    const line = lines[index].trim()
+
+    if (!line) continue
+
+    if (/^---+$/.test(line)) {
+      elements.push(<hr key={index} className="my-5 border-gray-200 dark:border-zinc-800" />)
+      continue
+    }
+
+    if (line.startsWith("### ")) {
+      elements.push(
+        <h3 key={index} className="mt-5 text-base font-bold text-gray-900 dark:text-zinc-100">
+          {renderInlineMarkdown(line.slice(4))}
+        </h3>,
+      )
+      continue
+    }
+
+    if (line.startsWith("## ")) {
+      elements.push(
+        <h2 key={index} className="mt-6 text-lg font-bold text-gray-900 dark:text-zinc-100">
+          {renderInlineMarkdown(line.slice(3))}
+        </h2>,
+      )
+      continue
+    }
+
+    if (line.startsWith("# ")) {
+      elements.push(
+        <h1 key={index} className="text-2xl font-bold leading-tight text-gray-950 dark:text-white">
+          {renderInlineMarkdown(line.slice(2))}
+        </h1>,
+      )
+      continue
+    }
+
+    if (/^[-*]\s+/.test(line)) {
+      const items = []
+      let listIndex = index
+
+      while (listIndex < lines.length && /^[-*]\s+/.test(lines[listIndex].trim())) {
+        items.push(lines[listIndex].trim().replace(/^[-*]\s+/, ""))
+        listIndex += 1
+      }
+
+      elements.push(
+        <ul key={index} className="my-4 list-disc space-y-2 pl-5 text-gray-700 dark:text-zinc-200">
+          {items.map((item, itemIndex) => (
+            <li key={itemIndex}>{renderInlineMarkdown(item)}</li>
+          ))}
+        </ul>,
+      )
+      index = listIndex - 1
+      continue
+    }
+
+    elements.push(
+      <p key={index} className="my-4 text-gray-700 dark:text-zinc-200">
+        {renderInlineMarkdown(line)}
+      </p>,
+    )
+  }
+
+  return <div className="text-sm leading-7">{elements}</div>
+}
+
 export default function ContentStudio() {
   const [selectedType, setSelectedType] = useState<ContentType>(CONTENT_TYPES[0])
   const [tone, setTone] = useState("professional")
   const [topic, setTopic] = useState("")
   const [output, setOutput] = useState("")
   const [isGenerating, setIsGenerating] = useState(false)
+  const [error, setError] = useState("")
 
-  const generate = () => {
+  const generate = async () => {
     if (!topic.trim()) return
     setIsGenerating(true)
-    
-    setTimeout(() => {
-      setOutput(`# ${topic}
+    setError("")
+    setOutput("")
 
-This is your AI-generated ${selectedType.label} in a ${tone} tone.
+    try {
+      const response = await fetch("/api/ai/content", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ type: selectedType.id, tone, topic }),
+      })
+      const data = (await response.json()) as { output?: string; error?: string }
 
-## Key Points
-
-- Point one about ${topic}
-- Point two with insights
-- Point three with actionable tips
-
-## Conclusion
-
-Start implementing these ideas today and see the results!`)
+      if (!response.ok) throw new Error(data.error || "Failed to generate content")
+      setOutput(stripOuterMarkdownFence(data.output || ""))
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Something went wrong")
+    } finally {
       setIsGenerating(false)
-    }, 1500)
+    }
   }
 
   const copy = () => {
@@ -101,7 +194,7 @@ Start implementing these ideas today and see the results!`)
               <textarea
                 value={topic}
                 onChange={(e) => setTopic(e.target.value)}
-                placeholder="e.g. Why AI is changing marketing"
+                placeholder="Describe what you want to create"
                 className="w-full mt-2 p-3 border border-gray-200 dark:border-zinc-700 bg-white dark:bg-zinc-950 text-gray-900 dark:text-zinc-100 rounded-xl text-sm focus:outline-none focus:border-teal-500 resize-none"
                 rows={2}
               />
@@ -137,6 +230,12 @@ Start implementing these ideas today and see the results!`)
             </button>
           </div>
 
+          {error && (
+            <div className="bg-red-50 dark:bg-red-950/30 rounded-xl border border-red-200 dark:border-red-900 p-4 text-sm text-red-600 dark:text-red-400">
+              {error}
+            </div>
+          )}
+
           {/* Output Section */}
           {output && (
             <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 p-5">
@@ -149,9 +248,7 @@ Start implementing these ideas today and see the results!`)
                   📋 Copy
                 </button>
               </div>
-              <pre className="text-sm text-gray-700 dark:text-zinc-200 whitespace-pre-wrap font-sans leading-relaxed">
-                {output}
-              </pre>
+              <MarkdownOutput content={output} />
             </div>
           )}
         </div>

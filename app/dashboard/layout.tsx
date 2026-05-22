@@ -11,6 +11,7 @@ const dashboardLinks = [
   { label: "Email", href: "/dashboard/email" },
   { label: "Content", href: "/dashboard/content" },
   { label: "Vision", href: "/dashboard/vision" },
+  { label: "Dev", href: "/dashboard/dev" },
 ]
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {

@@ -124,8 +124,6 @@ const faqs = [
   },
 ];
 
-const logos = ["Vercel", "Linear", "Notion", "Loom", "Pitch", "Raycast"];
-
 /* ─────────────── COMPONENT ─────────────── */
 export default function PricingPage() {
   const [yearly, setYearly] = useState(false);
@@ -386,22 +384,6 @@ export default function PricingPage() {
                 </div>
               );
             })}
-          </div>
-        </section>
-
-        {/* ── TRUST LOGOS ── */}
-        <section className={`border-y ${dark ? "border-zinc-800 bg-zinc-900" : "border-zinc-100 bg-zinc-50"} py-12 px-6`}>
-          <div className="max-w-4xl mx-auto text-center">
-            <p className={`text-xs font-bold uppercase tracking-widest ${muted} mb-8`}>
-              Trusted by teams at
-            </p>
-            <div className="flex flex-wrap items-center justify-center gap-8 sm:gap-12">
-              {logos.map(logo => (
-                <span key={logo} className={`font-display text-xl font-bold ${muted} opacity-60 hover:opacity-100 transition-opacity`}>
-                  {logo}
-                </span>
-              ))}
-            </div>
           </div>
         </section>
 

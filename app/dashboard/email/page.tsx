@@ -15,8 +15,8 @@ const TONES = ["Professional", "Friendly", "Casual", "Bold"]
 export default function EmailStudio() {
   const [template, setTemplate] = useState("cold")
   const [tone, setTone] = useState("Professional")
-  const [subject, setSubject] = useState("Quick idea for {Company}")
-  const [body, setBody] = useState("Write a cold email to {Name} at {Company} about our AI tool...")
+  const [subject, setSubject] = useState("")
+  const [body, setBody] = useState("")
   const [output, setOutput] = useState("")
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
@@ -29,23 +29,15 @@ export default function EmailStudio() {
     setOutput("")
 
     try {
-      await new Promise((resolve) => setTimeout(resolve, 900))
+      const response = await fetch("/api/ai/email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ template, tone, subject, body }),
+      })
+      const data = (await response.json()) as { output?: string; error?: string }
 
-      const generatedSubject = subject.trim() || "Quick idea for your team"
-      const generatedBody = [
-        "Hi there,",
-        "",
-        `I'm sharing a ${tone.toLowerCase()} ${template.replace("-", " ")} email draft for your request.`,
-        "",
-        body.trim(),
-        "",
-        "Let me know if you want a shorter or more sales-focused version.",
-        "",
-        "Best regards,",
-        "MultipurposeAI",
-      ].join("\n")
-
-      setOutput(`Subject: ${generatedSubject}\n\n${generatedBody}`)
+      if (!response.ok) throw new Error(data.error || "Failed to generate email")
+      setOutput(data.output || "")
     } catch (err) {
       const message = err instanceof Error ? err.message : "Something went wrong"
       setError(message)
@@ -58,7 +50,7 @@ export default function EmailStudio() {
     <div className="max-w-3xl mx-auto p-6 space-y-6 bg-white dark:bg-zinc-900 rounded-xl shadow-sm border border-transparent dark:border-zinc-800 transition-colors">
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-bold text-gray-800 dark:text-zinc-100">✉️ Email Studio</h1>
-        <span className="text-xs text-gray-400 dark:text-zinc-500">Local demo mode</span>
+        <span className="text-xs text-gray-400 dark:text-zinc-500">OpenAI powered</span>
       </div>
 
       {/* Template Buttons */}
@@ -90,7 +82,7 @@ export default function EmailStudio() {
         <input
           value={subject}
           onChange={(e) => setSubject(e.target.value)}
-          placeholder="e.g., Quick idea for {Company}"
+          placeholder="Optional subject line"
           className="w-full mt-1.5 p-3 border border-gray-200 dark:border-zinc-700 bg-white dark:bg-zinc-950 text-gray-900 dark:text-zinc-100 rounded-lg text-sm focus:ring-2 focus:ring-indigo-200 dark:focus:ring-indigo-900 focus:border-indigo-400 outline-none transition"
         />
       </div>

@@ -27,6 +27,9 @@ export const authOptions: NextAuthOptions = {
       clientId: getEnv("GOOGLE_CLIENT_ID"),
       clientSecret: getEnv("GOOGLE_CLIENT_SECRET"),
       allowDangerousEmailAccountLinking: true,
+      httpOptions: {
+        timeout: 10000,
+      },
     }),
     CredentialsProvider({
       id: "google-one-tap",
